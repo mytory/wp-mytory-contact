@@ -1,0 +1,25 @@
+{
+  "name": "mytory/wp-mytory-contact",
+  "description": "워드프레스에 연락처 관리 기능을 추가한다.",
+  "version": "1.0",
+  "keywords": [
+    "wordpress",
+    "contact"
+  ],
+  "authors": [
+    {
+      "name": "An, Hyeong-woo",
+      "email": "mytory@gmail.com"
+    }
+  ],
+  "type": "library",
+  "require": {
+    "php": ">=7.0",
+    "phpoffice/phpspreadsheet": "^1.15"
+  },
+  "autoload": {
+    "psr-4": {
+      "Mytory\\Contact\\": "src/"
+    }
+  }
+}
