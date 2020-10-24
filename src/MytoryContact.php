@@ -81,11 +81,40 @@ class MytoryContact {
 			'연락처 목록',
 			'edit_others_posts',
 			'mytory_contact',
-			function () {
-				include __DIR__ . '/templates/contact-list.php';
-			},
+			[ $this, 'contactList' ],
 			'dashicons-index-card',
 			35
 		);
+	}
+
+	public function contactList() {
+
+		$paged = $_GET['paged'] ?? 1;
+
+		if ( ! empty( $_POST['name'] ) ) {
+			date_default_timezone_set( 'Asia/Seoul' );
+
+			$result  = wp_insert_post( [
+				'post_type'   => 'mytory_contact',
+				'post_title'  => $_POST['name'],
+				'post_status' => 'private',
+			], true );
+
+			if ( is_wp_error( $result ) ) {
+				$wp_error = $result;
+				$message  = implode( "<br>", $wp_error->get_error_messages() );
+			} else {
+				$ID = $result;
+				update_post_meta($ID, 'phone', $_POST['phone']);
+				$message = $_POST['name'] . ' 님(' . $_POST['phone'] .')을 저장했습니다.';
+			}
+		}
+
+		$wp_query = new \WP_Query( [
+			'post_type' => 'mytory_contact',
+			'paged'     => $paged,
+		] );
+
+		include __DIR__ . '/templates/contact-list.php';
 	}
 }
