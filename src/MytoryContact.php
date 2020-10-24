@@ -7,14 +7,14 @@ class MytoryContact {
 	private $has_group = false;
 
 	public function __construct( $args = [] ) {
-		$this->has_group = $args['has_group'];
+		$this->has_group = $args['has_group'] ?? false;
 
 		add_action( 'init', [ $this, 'registerPostType' ] );
 		if ( $this->has_group ) {
 			add_action( 'init', [ $this, 'registerTaxonomy' ] );
 		}
 
-		add_action( 'admin_init', [ $this, 'registerMenus' ] );
+		add_action( 'admin_menu', [ $this, 'registerMenus' ] );
 	}
 
 	public function registerPostType() {
@@ -77,17 +77,15 @@ class MytoryContact {
 
 	public function registerMenus() {
 		add_menu_page(
-			'연락처 관리',
-			'연락처 관리',
+			'연락처',
+			'연락처 목록',
 			'edit_others_posts',
 			'mytory_contact',
 			function () {
-				include 'templates/list.php';
+				include __DIR__ . '/templates/contact-list.php';
 			},
 			'dashicons-index-card',
 			35
 		);
 	}
-
-
 }
