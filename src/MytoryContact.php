@@ -127,9 +127,11 @@ class MytoryContact {
 			)
 		);
 
-		if (count($wp_query->posts)) {
-			$response['result'] = 'success';
+		if ( count( $wp_query->posts ) ) {
+			$response['result']  = 'success';
 			$response['message'] = '이미 등록한 연락처입니다.';
+			$response['ID']      = $wp_query->posts[0]->ID;
+
 			return $response;
 		}
 
@@ -147,6 +149,7 @@ class MytoryContact {
 			$ID = $result;
 			update_post_meta( $ID, 'phone', $phone );
 			$response['message'] = $name . ' 님(' . $phone . ')을 저장했습니다.';
+			$response['ID']      = $ID;
 		}
 
 		return $response;
