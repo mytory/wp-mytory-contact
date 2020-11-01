@@ -2,6 +2,8 @@
 
 namespace Mytory\Contact;
 
+use WP_Query;
+
 class MytoryContact {
 
 	private $has_group = false;
@@ -106,16 +108,36 @@ class MytoryContact {
 	}
 
 	public function registerContact( $name, $phone ) {
-		$result = wp_insert_post( [
-			'post_type'   => 'mytory_contact',
-			'post_title'  => $name,
-			'post_status' => 'private',
-		], true );
+		$phone = preg_replace( '/[^0-9]/', '', $phone );
 
 		$response = [
 			'result'  => 'success',
 			'message' => '',
 		];
+
+		$wp_query = new WP_Query(
+			array(
+				'post_type'  => 'mytory_contact',
+				'meta_query' => array(
+					array(
+						'key'   => 'phone',
+						'value' => $phone,
+					),
+				),
+			)
+		);
+
+		if (count($wp_query->posts)) {
+			$response['result'] = 'success';
+			$response['message'] = '이미 등록한 연락처입니다.';
+			return $response;
+		}
+
+		$result = wp_insert_post( [
+			'post_type'   => 'mytory_contact',
+			'post_title'  => $name,
+			'post_status' => 'private',
+		], true );
 
 		if ( is_wp_error( $result ) ) {
 			$wp_error            = $result;
