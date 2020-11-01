@@ -91,23 +91,10 @@ class MytoryContact {
 
 		$paged = $_GET['paged'] ?? 1;
 
+		date_default_timezone_set( 'Asia/Seoul' );
 		if ( ! empty( $_POST['name'] ) ) {
-			date_default_timezone_set( 'Asia/Seoul' );
-
-			$result  = wp_insert_post( [
-				'post_type'   => 'mytory_contact',
-				'post_title'  => $_POST['name'],
-				'post_status' => 'private',
-			], true );
-
-			if ( is_wp_error( $result ) ) {
-				$wp_error = $result;
-				$message  = implode( "<br>", $wp_error->get_error_messages() );
-			} else {
-				$ID = $result;
-				update_post_meta($ID, 'phone', $_POST['phone']);
-				$message = $_POST['name'] . ' 님(' . $_POST['phone'] .')을 저장했습니다.';
-			}
+			$result  = $this->registerContact( $_POST['name'], $_POST['phone'] );
+			$message = $result['message'];
 		}
 
 		$wp_query = new \WP_Query( [
@@ -116,5 +103,30 @@ class MytoryContact {
 		] );
 
 		include __DIR__ . '/templates/contact-list.php';
+	}
+
+	public function registerContact( $name, $phone ) {
+		$result = wp_insert_post( [
+			'post_type'   => 'mytory_contact',
+			'post_title'  => $name,
+			'post_status' => 'private',
+		], true );
+
+		$response = [
+			'result'  => 'success',
+			'message' => '',
+		];
+
+		if ( is_wp_error( $result ) ) {
+			$wp_error            = $result;
+			$response['result']  = 'error';
+			$response['message'] = implode( "<br>", $wp_error->get_error_messages() );
+		} else {
+			$ID = $result;
+			update_post_meta( $ID, 'phone', $phone );
+			$response['message'] = $name . ' 님(' . $phone . ')을 저장했습니다.';
+		}
+
+		return $response;
 	}
 }
