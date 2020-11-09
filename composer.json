@@ -13,6 +13,7 @@
     }
   ],
   "type": "library",
+  "repositories": [],
   "require": {
     "php": ">=7.0",
     "phpoffice/phpspreadsheet": "^1.15"

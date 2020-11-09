@@ -4,11 +4,14 @@ namespace Mytory\Contact;
 
 use WP_Query;
 
+include __DIR__ . '/../vendor/autoload.php';
+
 class MytoryContact {
 
 	private $has_group = false;
 
 	public function __construct( $args = [] ) {
+
 		$this->has_group = $args['has_group'] ?? false;
 
 		add_action( 'init', [ $this, 'registerPostType' ] );
@@ -17,6 +20,9 @@ class MytoryContact {
 		}
 
 		add_action( 'admin_menu', [ $this, 'registerMenus' ] );
+
+		add_action( 'admin_enqueue_scripts', [ $this, 'scripts' ] );
+		add_action( 'wp_ajax_mytory_contact_remove', [ $this, 'remove' ] );
 	}
 
 	public function registerPostType() {
@@ -153,5 +159,24 @@ class MytoryContact {
 		}
 
 		return $response;
+	}
+
+	function scripts() {
+		$dist_dir = str_replace( get_template_directory(), '', realpath( __DIR__ . '/../dist' ) );
+		wp_enqueue_script( 'mytory-contact', theme_url( $dist_dir . '/mytory-contact.js' ), [], null, true );
+	}
+
+	function remove() {
+		if ( wp_trash_post( $_POST['id'] ) ) {
+			$res = [
+				'result' => 'success',
+			];
+		} else {
+			$res = [
+				'result' => 'error',
+			];
+		}
+		echo json_encode($res);
+		die();
 	}
 }

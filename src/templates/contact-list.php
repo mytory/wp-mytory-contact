@@ -54,15 +54,13 @@
             </tr>
             </thead>
             <tbody>
-			<?php while ( $wp_query->have_posts() ): $wp_query->the_post(); ?>
-                <tr>
-                    <td><?php the_title() ?></td>
-                    <td><?php echo get_post_meta( get_the_ID(), 'phone', true ) ?></td>
-                    <td>
-                        <button class="button  button-small" @click="remove">삭제</button>
-                    </td>
-                </tr>
-			<?php endwhile; ?>
+            <tr v-for="contact in contactList">
+                <td>{{ contact.name }}</td>
+                <td>{{ contact.phone }}</td>
+                <td>
+                    <button class="button  button-small" @click="remove(contact.ID)">삭제</button>
+                </td>
+            </tr>
             </tbody>
         </table>
         <div>
@@ -75,3 +73,20 @@
         </div>
 	<?php } ?>
 </div>
+
+<?php
+$contact_list = [];
+foreach ( $wp_query->posts as $contact ) {
+	$contact_list[] = [
+		'ID'    => $contact->ID,
+		'name'  => $contact->post_title,
+		'phone' => get_post_meta( $contact->ID, 'phone', true ),
+	];
+}
+?>
+
+<script>
+    var mytoryContact = {
+        contactList: <?php echo json_encode( $contact_list ); ?>
+    };
+</script>
