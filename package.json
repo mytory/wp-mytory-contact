@@ -1,0 +1,35 @@
+{
+  "name": "wp-mytory-contact",
+  "description": "Mytory Contact for WordPress",
+  "main": "mytory-contact.js",
+  "dependencies": {},
+  "devDependencies": {
+    "cross-env": "^5.1",
+    "vue": "^2.6.12",
+    "webpack": "^4.27.1",
+    "webpack-cli": "^3.3.9"
+  },
+  "scripts": {
+    "dev": "npm run development",
+    "development": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --progress --hide-modules --mode=development",
+    "watch": "npm run development -- --watch",
+    "watch-poll": "npm run watch -- --watch-poll",
+    "hot": "cross-env NODE_ENV=development node_modules/webpack-dev-server/bin/webpack-dev-server.js --inline --hot  --mode=development",
+    "prod": "npm run production",
+    "production": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --no-progress --hide-modules  --mode=production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mytory/wp-mytory-contact.git"
+  },
+  "keywords": [
+    "wordpress",
+    "contact",
+    "mytory"
+  ],
+  "author": "mytory@gmail.com",
+  "bugs": {
+    "url": "https://github.com/mytory/wp-mytory-contact/issues"
+  },
+  "homepage": "https://github.com/mytory/wp-mytory-contact#readme"
+}
