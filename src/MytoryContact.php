@@ -163,7 +163,8 @@ class MytoryContact {
 
 	function scripts() {
 		$dist_dir = str_replace( get_template_directory(), '', realpath( __DIR__ . '/../dist' ) );
-		wp_enqueue_script( 'mytory-contact', theme_url( $dist_dir . '/mytory-contact.js' ), [], null, true );
+		$version  = filemtime( realpath( __DIR__ . '/../dist/mytory-contact.js' ) );
+		wp_enqueue_script( 'mytory-contact', theme_url( $dist_dir . '/mytory-contact.js' ), [], $version, true );
 	}
 
 	function remove() {
@@ -176,7 +177,7 @@ class MytoryContact {
 				'result' => 'error',
 			];
 		}
-		echo json_encode($res);
+		echo json_encode( $res );
 		die();
 	}
 }
