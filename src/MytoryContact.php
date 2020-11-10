@@ -15,14 +15,15 @@ class MytoryContact {
 		$this->has_group = $args['has_group'] ?? false;
 
 		add_action( 'init', [ $this, 'registerPostType' ] );
-		if ( $this->has_group ) {
-			add_action( 'init', [ $this, 'registerTaxonomy' ] );
-		}
-
 		add_action( 'admin_menu', [ $this, 'registerMenus' ] );
-
 		add_action( 'admin_enqueue_scripts', [ $this, 'scripts' ] );
 		add_action( 'wp_ajax_mytory_contact_remove', [ $this, 'remove' ] );
+
+		if ( $this->has_group ) {
+			add_action( 'init', [ $this, 'registerTaxonomy' ] );
+			add_action( 'admin_menu', [ $this, 'registerGroupMenus' ] );
+			add_action( 'wp_ajax_mytory_contact_save_group', [ $this, 'saveGroup' ] );
+		}
 	}
 
 	public function registerPostType() {
@@ -95,6 +96,17 @@ class MytoryContact {
 		);
 	}
 
+	public function registerGroupMenus() {
+		add_submenu_page(
+			'mytory_contact',
+			'연락처 그룹 목록',
+			'그룹',
+			'edit_others_posts',
+			'mytory_contact_group_list',
+			[ $this, 'groupList' ]
+		);
+	}
+
 	public function contactList() {
 
 		$paged = $_GET['paged'] ?? 1;
@@ -122,14 +134,16 @@ class MytoryContact {
 		$phone = preg_replace( '/[^0-9]/', '', $phone );
 
 		if ( empty( $name ) ) {
-			$response['result'] = 'error';
+			$response['result']  = 'error';
 			$response['message'] = '이름을 입력해 주세요.';
+
 			return $response;
 		}
 
 		if ( empty( $phone ) ) {
-			$response['result'] = 'error';
+			$response['result']  = 'error';
 			$response['message'] = '전화번호를 입력해 주세요.';
+
 			return $response;
 		}
 
@@ -173,6 +187,16 @@ class MytoryContact {
 		return $response;
 	}
 
+	public function groupList() {
+		$term_query = new \WP_Term_Query( [
+			'taxonomy'   => 'mytory_contact_group',
+			'hide_empty' => false,
+			'count'      => true
+		] );
+		$group_list = $term_query->terms;
+		include __DIR__ . '/templates/group-list.php';
+	}
+
 	function scripts() {
 		$dist_dir = str_replace( get_template_directory(), '', realpath( __DIR__ . '/../dist' ) );
 		$version  = filemtime( realpath( __DIR__ . '/../dist/mytory-contact.js' ) );
@@ -190,6 +214,46 @@ class MytoryContact {
 			];
 		}
 		echo json_encode( $res );
+		die();
+	}
+
+	public function saveGroup() {
+
+		$term = get_term_by( 'name', $_POST['name'], 'mytory_contact_group' );
+
+		if ( $term ) {
+			echo json_encode( [
+				'result'  => 'error',
+				'message' => '같은 이름의 그룹이 이미 있습니다. 다른 이름을 사용하세요 😀',
+			] );
+		}
+
+		if ( empty( $_POST['name'] ) ) {
+			echo json_encode( [
+				'result'  => 'error',
+				'message' => '그룹 이름을 입력해 주세요.',
+			] );
+		}
+
+		if ( ! empty( $_POST['name'] ) ) {
+
+			$result = wp_insert_term( $_POST['name'], 'mytory_contact_group' );
+
+			if ( is_wp_error( $result ) ) {
+				$wp_error = $result;
+				echo json_encode( [
+					'result'  => 'error',
+					'message' => implode( "\n", $wp_error->get_error_messages() ),
+				] );
+			}
+
+			echo json_encode([
+				'result'  => 'success',
+				'message' => '저장했습니다.',
+				'group'   => get_term( $result['term_id'] ),
+			]);
+		}
+
 		die();
 	}
 }
