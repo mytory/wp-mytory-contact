@@ -18,36 +18,32 @@ if (document.querySelector('.js-contact-list')) {
                         cancel: '아니오',
                         remove: {
                             text: '삭제',
-                            dangerMode: true,
                             className: 'swal-button--danger',
                             value: 'remove'
                         }
                     }
-                })
-                    .then((value) => {
-                        if (value === 'remove') {
-                            axios({
-                                method: 'POST',
-                                url: ajaxurl,
-                                headers: {'content-type': 'application/x-www-form-urlencoded'},
-                                data: qs.stringify({id: id, action: 'mytory_contact_remove'})
-                            })
-                                .then(res => {
-                                    if (res.data.result === 'success') {
-                                        this.contactList = this.contactList.filter(item => item.ID !== id);
-                                    } else {
-                                        throw '관리자에게 문의하세요.';
-                                    }
-                                })
-                                .catch(error => {
-                                    swal({
-                                        title: '에러 발생!',
-                                        text: error,
-                                        icon: 'error'
-                                    });
-                                });
-                        }
-                    });
+                }).then((value) => {
+                    if (value === 'remove') {
+                        axios({
+                            method: 'POST',
+                            url: ajaxurl,
+                            headers: {'content-type': 'application/x-www-form-urlencoded'},
+                            data: qs.stringify({id: id, action: 'mytory_contact_remove'})
+                        }).then(res => {
+                            if (res.data.result === 'success') {
+                                this.contactList = this.contactList.filter(item => item.ID !== id);
+                            } else {
+                                throw '관리자에게 문의하세요.';
+                            }
+                        }).catch(error => {
+                            swal({
+                                title: '에러 발생!',
+                                text: error,
+                                icon: 'error'
+                            });
+                        });
+                    }
+                });
 
 
             }
