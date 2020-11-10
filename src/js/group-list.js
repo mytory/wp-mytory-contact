@@ -23,20 +23,23 @@ new Vue({
             }).then(res => {
                 if (res.data.result === 'success') {
                     this.groupList.push(res.data.group);
-                    swal(`${res.data.group.name} 그룹을 저장했습니다.`)
+                    swal({
+                        title: `${res.data.group.name} 그룹을 저장했습니다.`,
+                        icon: 'success'
+                    })
                         .then(() => {
                             document.getElementById('name').value = '';
                             document.getElementById('name').focus();
                         });
                     this.groupList = this.groupList.sort((a, b) => (a.name > b.name) ? 1 : -1);
                 } else {
-                    throw '관리자에게 문의하세요.';
+                    throw res.data;
                 }
             }).catch(error => {
                 swal({
-                    title: '에러 발생!',
-                    text: error,
-                    icon: 'error'
+                    title: '문제가 있습니다',
+                    text: error.message,
+                    icon: error.result
                 });
             });
         }
