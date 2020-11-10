@@ -29,7 +29,7 @@
             <tr>
                 <th><label for="name">전화번호</label></th>
                 <td>
-                    <input required type="tel" name="phone" pattern="[0-9]{10,}" title="숫자만 입력해 주세요"
+                    <input required type="tel" name="phone" pattern="[0-9]{10,}" title="숫자만 10자리 이상 입력해 주세요"
                            placeholder="예) 01012341234">
                 </td>
             </tr>
