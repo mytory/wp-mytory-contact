@@ -23,7 +23,7 @@
             <tr>
                 <th><label for="name">이름</label></th>
                 <td>
-                    <input type="text" name="name">
+                    <input type="text" name="name" id="name">
                 </td>
             </tr>
             <tr>
@@ -89,4 +89,7 @@ foreach ( $wp_query->posts as $contact ) {
     var mytoryContact = {
         contactList: <?php echo json_encode( $contact_list ); ?>
     };
+    setTimeout(function () {
+        document.getElementById('name').focus();
+    }, 500);
 </script>
