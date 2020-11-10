@@ -3,10 +3,14 @@ import axios from 'axios';
 import qs from 'qs';
 import swal from 'sweetalert';
 
+Vue.component('group-manager', require('./group-manager').default);
+
 new Vue({
     el: '.js-group-list',
     data: {
-        groupList: mytoryContact.groupList || []
+        selectedGroup: null,
+        groupList: mytoryContact.groupList || [],
+        showGroupManager: false,
     },
     methods: {
         save() {
@@ -42,6 +46,9 @@ new Vue({
                     icon: error.result
                 });
             });
+        },
+        saveGroupContacts() {
+
         }
     },
     created() {

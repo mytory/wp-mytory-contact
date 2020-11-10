@@ -9,6 +9,8 @@
     "qs": "^6.9.4",
     "sweetalert": "^2.1.2",
     "vue": "^2.6.12",
+    "vue-loader": "^15.9.5",
+    "vue-template-compiler": "^2.6.12",
     "webpack": "^4.27.1",
     "webpack-cli": "^3.3.9"
   },

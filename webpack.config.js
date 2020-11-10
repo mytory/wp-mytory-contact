@@ -1,4 +1,5 @@
 const path = require('path');
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
 module.exports = {
     entry: './src/js/mytory-contact.js',
@@ -19,5 +20,9 @@ module.exports = {
                 loader: 'vue-loader'
             }
         ]
-    }
+    },
+    plugins: [
+        // make sure to include the plugin!
+        new VueLoaderPlugin()
+    ]
 };
