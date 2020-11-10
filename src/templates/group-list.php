@@ -143,6 +143,41 @@
         -webkit-transform: scale(1.1);
         transform: scale(1.1);
     }
+
+    .c-close {
+        float: right;
+        font-size: 27px;
+        font-weight: normal;
+        line-height: 1;
+        color: #000;
+        text-shadow: 0 1px 0 #fff;
+        opacity: 0.5;
+        filter: alpha(opacity=50);
+    }
+
+    .c-close:hover,
+    .c-close:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+        opacity: 0.9;
+        filter: alpha(opacity=90);
+    }
+
+    .c-close--absolute {
+        float: none;
+        position: absolute;
+        right: 15px;
+        top: 15px;
+    }
+
+    button.c-close {
+        padding: 0;
+        cursor: pointer;
+        background: transparent;
+        border: 0;
+        -webkit-appearance: none;
+    }
 </style>
 <div class="wrap  js-group-list">
     <h1>연락처 그룹 목록</h1>
