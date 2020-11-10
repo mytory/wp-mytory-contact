@@ -223,16 +223,18 @@ class MytoryContact {
 
 		if ( $term ) {
 			echo json_encode( [
-				'result'  => 'error',
+				'result'  => 'info',
 				'message' => '같은 이름의 그룹이 이미 있습니다. 다른 이름을 사용하세요 😀',
 			] );
+			die();
 		}
 
 		if ( empty( $_POST['name'] ) ) {
 			echo json_encode( [
-				'result'  => 'error',
+				'result'  => 'info',
 				'message' => '그룹 이름을 입력해 주세요.',
 			] );
+			die();
 		}
 
 		if ( ! empty( $_POST['name'] ) ) {
@@ -245,6 +247,7 @@ class MytoryContact {
 					'result'  => 'error',
 					'message' => implode( "\n", $wp_error->get_error_messages() ),
 				] );
+				die();
 			}
 
 			echo json_encode([
