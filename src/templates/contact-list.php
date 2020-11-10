@@ -23,13 +23,14 @@
             <tr>
                 <th><label for="name">이름</label></th>
                 <td>
-                    <input type="text" name="name" id="name">
+                    <input required type="text" name="name" id="name">
                 </td>
             </tr>
             <tr>
                 <th><label for="name">전화번호</label></th>
                 <td>
-                    <input type="tel" name="phone">
+                    <input required type="tel" name="phone" pattern="[0-9]{10,}" title="숫자만 입력해 주세요"
+                           placeholder="예) 01012341234">
                 </td>
             </tr>
         </table>

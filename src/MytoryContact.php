@@ -114,12 +114,24 @@ class MytoryContact {
 	}
 
 	public function registerContact( $name, $phone ) {
-		$phone = preg_replace( '/[^0-9]/', '', $phone );
-
 		$response = [
 			'result'  => 'success',
 			'message' => '',
 		];
+
+		$phone = preg_replace( '/[^0-9]/', '', $phone );
+
+		if ( empty( $name ) ) {
+			$response['result'] = 'error';
+			$response['message'] = '이름을 입력해 주세요.';
+			return $response;
+		}
+
+		if ( empty( $phone ) ) {
+			$response['result'] = 'error';
+			$response['message'] = '전화번호를 입력해 주세요.';
+			return $response;
+		}
 
 		$wp_query = new WP_Query(
 			array(
