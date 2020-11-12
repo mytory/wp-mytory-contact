@@ -10,7 +10,9 @@ new Vue({
     data: {
         selectedGroup: null,
         groupList: mytoryContact.groupList || [],
+        contactList: mytoryContact.contactList || [],
         showGroupManager: false,
+        selectedGroupContactList: [],
     },
     methods: {
         save() {
@@ -48,6 +50,10 @@ new Vue({
             });
         },
         saveGroupContacts() {
+
+        },
+        openPopup() {
+            this.showGroupManager = true;
 
         }
     },

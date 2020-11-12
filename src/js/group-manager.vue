@@ -3,30 +3,36 @@
         <div class="modal-mask">
             <div class="modal-wrapper">
                 <div class="modal-container">
-
                     <header class="modal-header">
-
-                        <h1>{{ group.name }}</h1>
+                        <h1 style="float: left; padding: 0;">{{ group.name }}</h1>
 
                         <div style="float: right;">
-                            <button class="button  button-primary" @click="save()"
-                                    :disabled="isProcessing">
+                            <button class="button  button-primary" @click="save()" :disabled="isProcessing">
                                 저장
                             </button>
-                            <button class="button" @click="close"
-                                    :disabled="isProcessing">
+                            <button class="button" @click="close" :disabled="isProcessing">
                                 취소
                             </button>
                         </div>
-
                     </header>
 
                     <div class="modal-body">
+                        <div class="o-layout">
+                            <div class="o-layout__item  u-6/12">
+                                <ul>
+                                    <li v-for="contact in contactList">
+                                        {{ contact.post_title }}
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="o-layout__item  u-6/12"></div>
+                        </div>
+
                         <div style="text-align: center;">
                             <button class="button  button-primary" @click="save()" :disabled="isProcessing">
                                 저장
                             </button>
-                            <button class="c-btn  c-btn--danger" @click="close" :disabled="isProcessing">
+                            <button class="button" @click="close" :disabled="isProcessing">
                                 취소
                             </button>
                         </div>
@@ -63,7 +69,6 @@
                         }
                     }
                 }).then(data => {
-                    console.log(data);
                     switch (data) {
                         case 'close':
                             this.$emit('close');
@@ -72,12 +77,12 @@
                             break;
                     }
                 }).catch(error => {
-                    console.log(error);
+                    swal(error);
                 });
 
             }
         },
-        props: ['group'],
+        props: ['group', 'contactList', 'groupContactList'],
     }
 </script>
 

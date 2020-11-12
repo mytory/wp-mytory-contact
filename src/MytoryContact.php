@@ -194,13 +194,23 @@ class MytoryContact {
 			'count'      => true
 		] );
 		$group_list = $term_query->terms;
+
+		$wp_query = new WP_Query( [
+			'post_type'      => 'mytory_contact',
+			'post_status'    => 'any',
+		] );
+		$contact_list = $wp_query->posts;
+		$contact_total = $wp_query->found_posts;
 		include __DIR__ . '/templates/group-list.php';
 	}
 
 	function scripts() {
-		$dist_dir = str_replace( get_template_directory(), '', realpath( __DIR__ . '/../dist' ) );
+		$mytory_contact_uri = str_replace( get_template_directory(), '', realpath( __DIR__ . '/..' ) );
 		$version  = filemtime( realpath( __DIR__ . '/../dist/mytory-contact.js' ) );
-		wp_enqueue_script( 'mytory-contact', theme_url( $dist_dir . '/mytory-contact.js' ), [], $version, true );
+		wp_enqueue_script( 'mytory-contact', theme_url( $mytory_contact_uri . '/dist/mytory-contact.js' ), [], $version, true );
+
+		$version = filemtime( realpath( __DIR__ . '/../src/mytory-contact.css' ) );
+		wp_enqueue_style('mytory-contact', theme_url($mytory_contact_uri . '/src/css/mytory-contact.css'), [], $version, 'all');
 	}
 
 	function remove() {
@@ -250,11 +260,11 @@ class MytoryContact {
 				die();
 			}
 
-			echo json_encode([
+			echo json_encode( [
 				'result'  => 'success',
 				'message' => '저장했습니다.',
 				'group'   => get_term( $result['term_id'] ),
-			]);
+			] );
 		}
 
 		die();
