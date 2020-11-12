@@ -130,10 +130,32 @@ class MytoryContact {
 			$message = $result['message'];
 		}
 
-		$wp_query = new \WP_Query( [
-			'post_type' => 'mytory_contact',
-			'paged'     => $paged,
-		] );
+		if ( empty( $_GET['q'] ) ) {
+			$wp_query = new \WP_Query( [
+				'post_type' => 'mytory_contact',
+				'paged'     => $paged,
+			] );
+		} else {
+			if ( is_numeric( $_GET['q'] ) ) {
+				$wp_query = new \WP_Query( [
+					'post_type'  => 'mytory_contact',
+					'paged'      => $paged,
+					'meta_query' => array(
+						array(
+							'key'     => 'phone',
+							'value'   => $_GET['q'],
+							'compare' => 'LIKE'
+						),
+					),
+				] );
+			} else {
+				$wp_query = new \WP_Query( [
+					'post_type' => 'mytory_contact',
+					'paged'     => $paged,
+					's'         => $_GET['q'],
+				] );
+			}
+		}
 
 		include __DIR__ . '/templates/contact-list.php';
 	}
@@ -256,7 +278,7 @@ class MytoryContact {
 				if ( count( $results ) ) {
 					// 이미 등록돼 있는 연락처는 등록하지 않는다.
 					$already_list = array_column( $results, 'meta_value' );
-					$contacts = array_filter( $contacts, function ( $contact ) use ( $already_list ) {
+					$contacts     = array_filter( $contacts, function ( $contact ) use ( $already_list ) {
 						return ! in_array( $contact['phone'], $already_list );
 					} );
 				}

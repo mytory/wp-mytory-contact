@@ -37,6 +37,16 @@
         <p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="저장"></p>
     </form>
 
+    <div style="max-width: 520px; margin-bottom: .5em;">
+        <form style="float: right;">
+            <input type="hidden" name="page" value="mytory_contact">
+            <input type="search" name="q" title="검색" placeholder="이름, 전화번호"
+                   value="<?php echo esc_attr( $_GET['q'] ) ?? ''; ?>">
+            <input type="submit" class="button button-primary" value="검색">
+        </form>
+        <div style="clear: both;"></div>
+    </div>
+
 	<?php
 	if ( $wp_query->post_count == 0 ) { ?>
         <p>연락처가 없습니다.</p>
