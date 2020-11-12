@@ -2,6 +2,8 @@
 
 namespace Mytory\Contact;
 
+use PhpOffice\PhpSpreadsheet\Cell\Cell;
+use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use WP_Query;
 
 include __DIR__ . '/../vendor/autoload.php';
@@ -87,12 +89,22 @@ class MytoryContact {
 	public function registerMenus() {
 		add_menu_page(
 			'연락처',
-			'연락처 목록',
+			'연락처',
 			'edit_others_posts',
 			'mytory_contact',
 			[ $this, 'contactList' ],
 			'dashicons-index-card',
 			35
+		);
+
+		add_submenu_page(
+			'mytory_contact',
+			'엑셀로 등록',
+			'엑셀로 등록',
+			'edit_others_posts',
+			'mytory_contact_excel',
+			[ $this, 'excel' ],
+			20
 		);
 	}
 
@@ -103,7 +115,8 @@ class MytoryContact {
 			'그룹',
 			'edit_others_posts',
 			'mytory_contact_group_list',
-			[ $this, 'groupList' ]
+			[ $this, 'groupList' ],
+			10
 		);
 	}
 
@@ -131,7 +144,7 @@ class MytoryContact {
 			'message' => '',
 		];
 
-		$phone = preg_replace( '/[^0-9]/', '', $phone );
+		$phone = $this->regularizePhone( $phone );
 
 		if ( empty( $name ) ) {
 			$response['result']  = 'error';
@@ -187,6 +200,20 @@ class MytoryContact {
 		return $response;
 	}
 
+	/**
+	 * @param $phone
+	 *
+	 * @return array
+	 */
+	private function regularizePhone( $phone ) {
+		$phone = preg_replace( '/[^0-9+]/', '', $phone );
+		if ( substr( $phone, 0, 3 ) == '+82' ) {
+			$phone = preg_replace( '/^\+82/', '0', $phone );
+		}
+
+		return $phone;
+	}
+
 	public function groupList() {
 		$term_query = new \WP_Term_Query( [
 			'taxonomy'   => 'mytory_contact_group',
@@ -195,26 +222,166 @@ class MytoryContact {
 		] );
 		$group_list = $term_query->terms;
 
-		$wp_query = new WP_Query( [
-			'post_type'      => 'mytory_contact',
-			'post_status'    => 'any',
+		$wp_query      = new WP_Query( [
+			'post_type'   => 'mytory_contact',
+			'post_status' => 'any',
 		] );
-		$contact_list = $wp_query->posts;
+		$contact_list  = $wp_query->posts;
 		$contact_total = $wp_query->found_posts;
 		include __DIR__ . '/templates/group-list.php';
 	}
 
+	public function excel() {
+		if ( empty( $_POST ) ) {
+			$mytory_contact_url = theme_url( str_replace( get_template_directory(), '', realpath( __DIR__ . '/..' ) ) );
+			$example_excel_href = $mytory_contact_url . '/src/examples/contacts.xlsx';
+			if ( $this->has_group ) {
+				$example_excel_href = $mytory_contact_url . '/src/examples/group-contacts.xlsx';
+			}
+			include __DIR__ . '/templates/excel.php';
+		} else {
+
+			try {
+				$contacts                = $this->readContactsFromExcel( $_FILES['excel']['tmp_name'] );
+				$phone_linked_with_comma = implode( ', ', array_map( function ( $phone ) {
+					return "'{$phone}'";
+				}, array_column( $contacts, 'phone' ) ) );
+
+				/**
+				 * @var \wpdb $wpdb
+				 */
+				global $wpdb;
+				$results      = $wpdb->get_results( "select * from {$wpdb->prefix}postmeta where meta_key = 'phone' and meta_value in ({$phone_linked_with_comma})", 'ARRAY_A' );
+				$already_list = [];
+				if ( count( $results ) ) {
+					// 이미 등록돼 있는 연락처는 등록하지 않는다.
+					$already_list = array_column( $results, 'meta_value' );
+					$contacts = array_filter( $contacts, function ( $contact ) use ( $already_list ) {
+						return ! in_array( $contact['phone'], $already_list );
+					} );
+				}
+
+
+				$error_list   = [];
+				$result_count = 0;
+				if ( $this->has_group ) {
+					$this->batchInsertGroup( $contacts );
+					$group_map = $this->getGroupMap( $contacts );
+				}
+				foreach ( $contacts as $contact ) {
+					$result = wp_insert_post( [
+						'post_type'   => 'mytory_contact',
+						'post_title'  => $contact['name'],
+						'post_status' => 'private',
+					], true );
+
+					if ( is_wp_error( $result ) ) {
+						$wp_error     = $result;
+						$error_list[] = $wp_error->get_error_messages();
+					} else {
+						$ID = $result;
+						update_post_meta( $ID, 'phone', $contact['phone'] );
+						$result_count ++;
+					}
+					if ( $this->has_group and ! empty( $contact['group'] ) ) {
+						wp_add_object_terms( $ID, $group_map[ $contact['group'] ]->term_id, 'mytory_contact_group' );
+					}
+				}
+
+				include __DIR__ . '/templates/excel-result.php';
+			} catch ( Exception $e ) {
+				echo $e->getMessage();
+				die();
+			}
+		}
+	}
+
+	/**
+	 * @param $excel_path
+	 *
+	 * @return array
+	 * @throws \PhpOffice\PhpSpreadsheet\Reader\Exception
+	 */
+	private function readContactsFromExcel( $excel_path ): array {
+		$reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile( $excel_path );
+		$reader->setReadDataOnly( true );
+		$spreadsheet = $reader->load( $_FILES['excel']['tmp_name'] );
+		$worksheet   = $spreadsheet->getActiveSheet();
+
+		$contacts = [];
+
+		foreach ( $worksheet->getRowIterator() as $row ) {
+			if ( $row->getRowIndex() === 1 ) {
+				// 1번줄은 제목줄이므로 통과
+				continue;
+			}
+			$contact      = [];
+			$cellIterator = $row->getCellIterator();
+			$cellIterator->setIterateOnlyExistingCells( false );
+			foreach ( $cellIterator as $cell ) {
+				/**
+				 * @var Cell $cell
+				 */
+				if ( $cell->getColumn() === 'A' ) {
+					$contact['name'] = $cell->getValue();
+				}
+				if ( $cell->getColumn() === 'B' ) {
+					$contact['phone'] = $this->regularizePhone( $cell->getValue() );
+				}
+				if ( $cell->getColumn() === 'C' ) {
+					$contact['group'] = $cell->getValue();
+				}
+			}
+			$contacts[] = $contact;
+		}
+
+		$contacts = array_filter( $contacts, function ( $contact ) {
+			return ! empty( $contact['name'] ) and ! empty( $contact['phone'] );
+		} );
+
+		return $contacts;
+	}
+
+	private function batchInsertGroup( array $contacts ) {
+		$group_names = array_filter( array_unique( array_column( $contacts, 'group' ) ) );
+		foreach ( $group_names as $group_name ) {
+			if ( ! get_term_by( 'name', $group_name, 'mytory_contact_group' ) ) {
+				$result = wp_insert_term( $group_name, 'mytory_contact_group' );
+				if ( is_wp_error( $result ) ) {
+					$wp_error = $result;
+				}
+			}
+		}
+	}
+
+	private function getGroupMap( array $contacts ) {
+		// 중복 제거, 빈갑 제거.
+		$group_names = array_unique( array_column( array_filter( $contacts, function ( $contact ) {
+			return ! empty( $contact['group'] );
+		} ), 'group' ) );
+
+		$group_map = [];
+		foreach ( $group_names as $group_name ) {
+			$group = get_term_by( 'name', $group_name, 'mytory_contact_group' );
+			if ( $group ) {
+				$group_map[ $group_name ] = $group;
+			}
+		}
+
+		return $group_map;
+	}
+
 	function scripts() {
-		$mytory_contact_uri = str_replace( get_template_directory(), '', realpath( __DIR__ . '/..' ) );
-		$version  = filemtime( realpath( __DIR__ . '/../dist/mytory-contact.js' ) );
-		wp_enqueue_script( 'mytory-contact', theme_url( $mytory_contact_uri . '/dist/mytory-contact.js' ), [], $version, true );
+		$mytory_contact_url = theme_url( str_replace( get_template_directory(), '', realpath( __DIR__ . '/..' ) ) );
+		$version            = filemtime( realpath( __DIR__ . '/../dist/mytory-contact.js' ) );
+		wp_enqueue_script( 'mytory-contact', $mytory_contact_url . '/dist/mytory-contact.js', [], $version, true );
 
 		$version = filemtime( realpath( __DIR__ . '/../src/mytory-contact.css' ) );
-		wp_enqueue_style('mytory-contact', theme_url($mytory_contact_uri . '/src/css/mytory-contact.css'), [], $version, 'all');
+		wp_enqueue_style( 'mytory-contact', $mytory_contact_url . '/src/css/mytory-contact.css', [], $version, 'all' );
 	}
 
 	function remove() {
-		if ( wp_trash_post( $_POST['id'] ) ) {
+		if ( wp_delete_post( $_POST['id'] ) ) {
 			$res = [
 				'result' => 'success',
 			];
@@ -269,4 +436,6 @@ class MytoryContact {
 
 		die();
 	}
+
+
 }
