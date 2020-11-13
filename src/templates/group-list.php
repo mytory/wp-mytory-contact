@@ -2,6 +2,7 @@
 /**
  * @var WP_Term[] $group_list
  * @var array $contact_list
+ * @var int $max_num_pages
  */
 ?>
 <div class="wrap  js-group-list">
@@ -36,12 +37,14 @@
                    @save="saveGroupContacts"
                    :group="selectedGroup"
                    :contact-list="contactList"
+                   :max-num-pages="maxNumPages"
                    :selected-group-contact-list="selectedGroupContactList"></group-manager>
 </div>
 
 <script>
     var mytoryContact = {
         groupList: <?php echo json_encode( $group_list ); ?>,
-        contactList: <?php echo json_encode( $contact_list ); ?>
+        contactList: <?php echo json_encode( $contact_list ); ?>,
+        maxNumPages: <?php echo json_encode( $max_num_pages ); ?>
     };
 </script>

@@ -11,6 +11,7 @@ new Vue({
         selectedGroup: null,
         groupList: mytoryContact.groupList || [],
         contactList: mytoryContact.contactList || [],
+        maxNumPages: mytoryContact.maxNumPages,
         showGroupManager: false,
         selectedGroupContactList: [],
     },

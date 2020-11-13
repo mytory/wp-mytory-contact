@@ -23,6 +23,7 @@ class MytoryContact {
 			add_action( 'init', [ $this, 'registerTaxonomy' ] );
 			add_action( 'admin_menu', [ $this, 'registerGroupMenus' ] );
 			add_action( 'wp_ajax_mytory_contact_save_group', [ $this, 'saveGroup' ] );
+			add_action( 'wp_ajax_mytory_contact_search', [ $this, 'ajaxSearch' ] );
 		}
 	}
 
@@ -236,6 +237,24 @@ class MytoryContact {
 		return $phone;
 	}
 
+	/**
+	 * @param WP_Query $wp_query
+	 *
+	 * @return array
+	 */
+	private function wpQueryToContactList( WP_Query $wp_query ) {
+		$contact_list = [];
+		foreach ( $wp_query->posts as $contact ) {
+			$contact_list[] = [
+				'ID'    => $contact->ID,
+				'name'  => $contact->post_title,
+				'phone' => get_post_meta( $contact->ID, 'phone', true ),
+			];
+		}
+
+		return $contact_list;
+	}
+
 	public function groupList() {
 		$term_query = new \WP_Term_Query( [
 			'taxonomy'   => 'mytory_contact_group',
@@ -248,8 +267,8 @@ class MytoryContact {
 			'post_type'   => 'mytory_contact',
 			'post_status' => 'any',
 		] );
-		$contact_list = $this->wpQueryToContactList( $wp_query );
-		$contact_total = $wp_query->found_posts;
+		$contact_list  = $this->wpQueryToContactList( $wp_query );
+		$max_num_pages = $wp_query->max_num_pages;
 		include __DIR__ . '/templates/group-list.php';
 	}
 
@@ -459,22 +478,32 @@ class MytoryContact {
 		die();
 	}
 
-	/**
-	 * @param WP_Query $wp_query
-	 *
-	 * @return array
-	 */
-	private function wpQueryToContactList( WP_Query $wp_query ) {
-		$contact_list = [];
-		foreach ( $wp_query->posts as $contact ) {
-			$contact_list[] = [
-				'ID'    => $contact->ID,
-				'name'  => $contact->post_title,
-				'phone' => get_post_meta( $contact->ID, 'phone', true ),
-			];
+	public function ajaxSearch() {
+		if ( is_numeric( $_POST['q'] ) ) {
+			$wp_query = new \WP_Query( [
+				'post_type'  => 'mytory_contact',
+				'paged'      => $_POST['paged'],
+				'meta_query' => array(
+					array(
+						'key'     => 'phone',
+						'value'   => $_POST['q'],
+						'compare' => 'LIKE'
+					),
+				),
+			] );
+		} else {
+			$wp_query = new \WP_Query( [
+				'post_type' => 'mytory_contact',
+				'paged'     => $_POST['paged'],
+				's'         => $_POST['q'],
+			] );
 		}
-		return $contact_list;
+
+		echo json_encode( [
+			'result' => 'success',
+			'contact_list' => $this->wpQueryToContactList( $wp_query ),
+			'max_num_pages' => $wp_query->max_num_pages,
+		] );
+		die();
 	}
-
-
 }
