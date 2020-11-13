@@ -6,8 +6,6 @@ use PhpOffice\PhpSpreadsheet\Cell\Cell;
 use PhpOffice\PhpSpreadsheet\Reader\Exception;
 use WP_Query;
 
-include __DIR__ . '/../vendor/autoload.php';
-
 class MytoryContact {
 
 	private $has_group = false;
