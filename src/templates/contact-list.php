@@ -41,7 +41,7 @@
         <form style="float: right;">
             <input type="hidden" name="page" value="mytory_contact">
             <input type="search" name="q" title="검색" placeholder="이름, 전화번호"
-                   value="<?php echo esc_attr( $_GET['q'] ) ?? ''; ?>">
+                   value="<?php echo esc_attr( $_GET['q'] ?? '' ); ?>">
             <input type="submit" class="button button-primary" value="검색">
         </form>
         <div style="clear: both;"></div>
