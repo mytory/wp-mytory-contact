@@ -101,8 +101,7 @@ class MytoryContact {
 			'엑셀로 등록',
 			'edit_others_posts',
 			'mytory_contact_excel',
-			[ $this, 'excel' ],
-			20
+			[ $this, 'excel' ]
 		);
 	}
 
@@ -114,7 +113,7 @@ class MytoryContact {
 			'edit_others_posts',
 			'mytory_contact_group_list',
 			[ $this, 'groupList' ],
-			10
+			1
 		);
 	}
 
