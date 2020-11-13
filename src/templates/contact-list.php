@@ -74,12 +74,23 @@
             </tr>
             </tbody>
         </table>
-        <div>
-			<?php if ( $paged > 1 ) { ?>
-                <a href="?paged=<?php echo $paged - 1 ?>">이전</a>
+        <div style="margin-top: 1em;">
+			<?php if ( $paged > 1 ) {
+			    parse_str($_SERVER['QUERY_STRING'], $parsed);
+				$parsed['paged'] = $paged - 1;
+			    ?>
+                <a href="?<?php echo http_build_query($parsed) ?>">이전</a>
 			<?php } ?>
-			<?php if ( $paged < $wp_query->max_num_pages ) { ?>
-                <a href="?paged=<?php echo $paged - 1 ?>">다음</a>
+
+            <span style="margin: 0 1em;">
+                <?php echo (int) $paged ?>페이지
+            </span>
+
+			<?php if ( $paged < $wp_query->max_num_pages ) {
+				parse_str($_SERVER['QUERY_STRING'], $parsed);
+				$parsed['paged'] = $paged + 1;
+				?>
+                <a href="?<?php echo http_build_query($parsed) ?>">다음</a>
 			<?php } ?>
         </div>
 	<?php } ?>
