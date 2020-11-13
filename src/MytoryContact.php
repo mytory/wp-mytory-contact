@@ -122,7 +122,7 @@ class MytoryContact {
 		$paged = $_GET['paged'] ?? 1;
 
 		date_default_timezone_set( 'Asia/Seoul' );
-		if ( ! empty( $_POST['name'] ) ) {
+		if ( ! empty( $_POST['name'] ) and ! empty( $_POST['phone'] ) ) {
 			$result  = $this->registerContact( $_POST['name'], $_POST['phone'] );
 			$message = $result['message'];
 		}
@@ -153,6 +153,9 @@ class MytoryContact {
 				] );
 			}
 		}
+
+
+		$contact_list = $this->wpQueryToContactList( $wp_query );
 
 		include __DIR__ . '/templates/contact-list.php';
 	}
@@ -245,7 +248,7 @@ class MytoryContact {
 			'post_type'   => 'mytory_contact',
 			'post_status' => 'any',
 		] );
-		$contact_list  = $wp_query->posts;
+		$contact_list = $this->wpQueryToContactList( $wp_query );
 		$contact_total = $wp_query->found_posts;
 		include __DIR__ . '/templates/group-list.php';
 	}
@@ -454,6 +457,23 @@ class MytoryContact {
 		}
 
 		die();
+	}
+
+	/**
+	 * @param WP_Query $wp_query
+	 *
+	 * @return array
+	 */
+	private function wpQueryToContactList( WP_Query $wp_query ) {
+		$contact_list = [];
+		foreach ( $wp_query->posts as $contact ) {
+			$contact_list[] = [
+				'ID'    => $contact->ID,
+				'name'  => $contact->post_title,
+				'phone' => get_post_meta( $contact->ID, 'phone', true ),
+			];
+		}
+		return $contact_list;
 	}
 
 

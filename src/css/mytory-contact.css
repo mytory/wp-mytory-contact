@@ -23,6 +23,7 @@
  */
 
 .o-layout__item {
+    box-sizing: border-box;
     display: inline-block;
     /* [1] */
     vertical-align: top;

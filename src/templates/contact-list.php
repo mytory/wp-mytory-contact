@@ -2,6 +2,7 @@
 /**
  * @var WP_Query $wp_query
  * @var int $paged
+ * @var array $contact_list
  */
 ?>
 <div class="wrap  js-contact-list">
@@ -95,17 +96,6 @@
         </div>
 	<?php } ?>
 </div>
-
-<?php
-$contact_list = [];
-foreach ( $wp_query->posts as $contact ) {
-	$contact_list[] = [
-		'ID'    => $contact->ID,
-		'name'  => $contact->post_title,
-		'phone' => get_post_meta( $contact->ID, 'phone', true ),
-	];
-}
-?>
 
 <script>
     var mytoryContact = {

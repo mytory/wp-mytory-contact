@@ -1,6 +1,7 @@
 <?php
 /**
  * @var WP_Term[] $group_list
+ * @var array $contact_list
  */
 ?>
 <div class="wrap  js-group-list">
@@ -35,7 +36,7 @@
                    @save="saveGroupContacts"
                    :group="selectedGroup"
                    :contact-list="contactList"
-                   :group-contact-list="selectedGroupContactList"></group-manager>
+                   :selected-group-contact-list="selectedGroupContactList"></group-manager>
 </div>
 
 <script>
