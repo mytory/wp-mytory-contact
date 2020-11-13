@@ -7,7 +7,6 @@
     <h1>연락처 그룹 목록</h1>
 
     <form class="card" @submit.prevent="save" style="margin-bottom: 1rem">
-        <h2>입력하기</h2>
         <table class="form-table">
             <tr>
                 <th><label for="name">그룹 이름</label></th>
@@ -16,11 +15,15 @@
                 </td>
             </tr>
         </table>
-        <p class="submit"><input type="submit" name="submit" id="submit" class="button button-primary" value="저장"></p>
+        <p class="submit">
+            <input type="submit" name="submit" id="submit" class="button button-primary" value="새 그룹 만들기">
+        </p>
     </form>
 
+    <p v-if="groupList.length === 0">연락처 그룹이 없습니다. 그룹을 만들면 그룹별로 카카오톡 메시지를 따로 전송할 수 있습니다.</p>
+
     <div class="mcg-card">
-        <button class="mcg-card__item" v-for="group in groupList"
+        <button class="mcg-card__item" v-for="group in groupList" v-cloak
                 @click="showGroupManager = true; selectedGroup = group;">
             <div class="mcg-card__tag">{{ group.count }}개</div>
             <div class="mcg-card__name">{{ group.name }}</div>
