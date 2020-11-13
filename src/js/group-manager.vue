@@ -19,13 +19,29 @@
                     <div class="modal-body">
                         <div class="o-layout">
                             <div class="o-layout__item  u-6/12">
-                                <ul>
-                                    <li v-for="contact in contactList">
-                                        {{ contact.post_title }}
-                                    </li>
-                                </ul>
+                                <div class="scroll-box">
+                                    <table class="hover-table">
+                                        <tr v-for="contact in contactList">
+                                            <td>{{ contact.post_title }}</td>
+                                            <td>
+                                                <button class="button  button-small">추가</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
                             </div>
-                            <div class="o-layout__item  u-6/12"></div>
+                            <div class="o-layout__item  u-6/12">
+                                <div class="scroll-box">
+                                    <table class="hover-table">
+                                        <tr v-for="contact in groupContactList">
+                                            <td>{{ contact.post_title }}</td>
+                                            <td>
+                                                <button class="button  button-small">빼기</button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
 
                         <div style="text-align: center;">

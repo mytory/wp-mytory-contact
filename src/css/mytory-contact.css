@@ -1201,3 +1201,7 @@ button.c-close {
 [v-cloak] {
     display: none;
 }
+
+.hover-table tr:hover td {
+    background-color: #eee;
+}
