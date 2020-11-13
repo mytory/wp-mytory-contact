@@ -65,7 +65,7 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="contact in contactList">
+            <tr v-for="contact in contactList" v-cloak>
                 <td>{{ contact.name }}</td>
                 <td>{{ contact.phone }}</td>
                 <td>

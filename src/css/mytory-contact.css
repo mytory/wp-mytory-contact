@@ -1197,3 +1197,7 @@ button.c-close {
      * 1. Defensively reset any leftover or conflicting `left`/`right` values.
      */
 }
+
+[v-cloak] {
+    display: none;
+}
