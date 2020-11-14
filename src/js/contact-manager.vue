@@ -17,7 +17,22 @@
                     </header>
 
                     <div class="modal-body">
-                        <table class="form-table">
+
+                        <div class="u-text-center" v-show="isProcessing">
+                            <div class="lds-roller">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div>
+                        </div>
+
+
+                        <table class="form-table" v-show="!isProcessing">
                             <tr>
                                 <th scope="row"><label for="name">이름</label></th>
                                 <td><input type="text" name="name" id="name" v-model="myContact.name"></td>
@@ -36,6 +51,9 @@
 
 <script>
 
+    import axios from "axios";
+    import qs from "qs";
+
     export default {
         name: "group-manager",
         data() {
@@ -49,7 +67,24 @@
                 this.$emit('close');
             },
             save() {
-                swal('save');
+                this.isProcessing = true;
+                this.myContact.phone = this.myContact.phone.replace(/[^0-9]/g, '');
+                axios({
+                    method: 'POST',
+                    url: ajaxurl,
+                    headers: {'content-type': 'application/x-www-form-urlencoded'},
+                    data: qs.stringify({contact: this.contact, action: 'mytory_contact_save'})
+                }).then(res => {
+                    this.isProcessing = false;
+                    if (res.data.result === 'success') {
+                        this.myContact = res.data.contact;
+                        this.close();
+                    } else {
+                        throw res.data;
+                    }
+                }).catch(error => {
+                    swal("문제가 발생했습니다", error.message, error.result);
+                });
             }
         },
         props: ['contact']

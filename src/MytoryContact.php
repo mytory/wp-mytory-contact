@@ -18,6 +18,7 @@ class MytoryContact {
 		add_action( 'admin_menu', [ $this, 'registerMenus' ] );
 		add_action( 'admin_enqueue_scripts', [ $this, 'scripts' ] );
 		add_action( 'wp_ajax_mytory_contact_remove', [ $this, 'remove' ] );
+		add_action( 'wp_ajax_mytory_contact_save', [ $this, 'save' ] );
 
 		if ( $this->has_group ) {
 			add_action( 'init', [ $this, 'registerTaxonomy' ] );
@@ -434,6 +435,35 @@ class MytoryContact {
 			];
 		}
 		echo json_encode( $res );
+		die();
+	}
+
+	public function save() {
+		$contact = $_POST['contact'];
+		$result  = wp_update_post( [
+			'ID'         => $contact['ID'],
+			'post_title' => $contact['name'],
+		], true );
+		if ( is_wp_error( $result ) ) {
+			$wp_error = $result;
+			echo json_encode( [
+				'result'  => 'error',
+				'message' => $wp_error->get_error_messages(),
+			] );
+		} else {
+			$ID    = $result;
+			$phone = $this->regularizePhone( $contact['phone'] );
+			update_post_meta( $ID, 'phone', $phone );
+			echo json_encode( [
+				'result'  => 'success',
+				'message' => '저장했습니다.',
+				'contact' => [
+					'ID'    => $ID,
+					'name'  => $contact['name'],
+					'phone' => $phone,
+				]
+			] );
+		}
 		die();
 	}
 
