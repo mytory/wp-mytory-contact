@@ -24,6 +24,8 @@ class MytoryContact {
 			add_action( 'admin_menu', [ $this, 'registerGroupMenus' ] );
 			add_action( 'wp_ajax_mytory_contact_save_group', [ $this, 'saveGroup' ] );
 			add_action( 'wp_ajax_mytory_contact_search', [ $this, 'ajaxSearch' ] );
+			add_action( 'wp_ajax_mytory_contact_get_group_contact_list', [ $this, 'getGroupContactList' ] );
+			add_action( 'wp_ajax_mytory_contact_save_group_contact_list', [ $this, 'saveGroupContactList' ] );
 		}
 	}
 
@@ -500,10 +502,45 @@ class MytoryContact {
 		}
 
 		echo json_encode( [
-			'result' => 'success',
-			'contact_list' => $this->wpQueryToContactList( $wp_query ),
+			'result'        => 'success',
+			'contact_list'  => $this->wpQueryToContactList( $wp_query ),
 			'max_num_pages' => $wp_query->max_num_pages,
 		] );
+		die();
+	}
+
+	public function getGroupContactList() {
+		$wp_query = new WP_Query( [
+			'post_type'      => 'mytory_contact',
+			'post_status'    => 'any',
+			'posts_per_page' => - 1,
+			'tax_query'      => array(
+				array(
+					'taxonomy' => 'mytory_contact_group',
+					'field'    => 'term_id',
+					'terms'    => (int) $_POST['term_id'],
+				)
+			)
+		] );
+		echo json_encode( [
+			'result'       => 'success',
+			'contact_list' => $this->wpQueryToContactList( $wp_query ),
+		] );
+		die();
+	}
+
+	public function saveGroupContactList() {
+		$group        = $_POST['group'];
+		$contact_list = $_POST['group_contact_list'];
+		foreach ( $contact_list as $item ) {
+			wp_add_object_terms( (int) $item['ID'], [ (int) $group['term_id'] ], 'mytory_contact_group' );
+		}
+
+		echo json_encode( [
+			'result'  => 'success',
+			'message' => '저장했습니다.',
+		] );
+
 		die();
 	}
 }

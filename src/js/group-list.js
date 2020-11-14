@@ -13,7 +13,6 @@ new Vue({
         contactList: mytoryContact.contactList || [],
         maxNumPages: mytoryContact.maxNumPages,
         showGroupManager: false,
-        selectedGroupContactList: [],
     },
     methods: {
         save() {

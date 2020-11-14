@@ -27,13 +27,17 @@
 
                                 <div style="text-align: center; font-size: 0.9rem; margin-bottom: 1em;">
                                     <button class="button-link" v-if="paged > 1"
-                                            @click="search(--paged)">이전</button>
+                                            @click="search(--paged)">이전
+                                    </button>
                                     <span style="margin: 0 1em">{{ paged }}페이지</span>
                                     <button class="button-link" v-if="paged < myMaxNumPages"
-                                            @click="search(++paged)">다음</button>
+                                            @click="search(++paged)">다음
+                                    </button>
                                 </div>
 
-                                <p v-show="isProcessing">검색중...</p>
+                                <div class="u-text-center" v-show="isProcessing">
+                                    <div class="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+                                </div>
 
                                 <table class="hover-table  u-12/12" style="font-size: 0.9rem;" v-show="!isProcessing">
                                     <tr v-for="(contact, index) in myContactList">
@@ -86,7 +90,7 @@
             return {
                 myContactList: this.contactList,
                 myMaxNumPages: this.maxNumPages,
-                groupContactList: this.selectedGroupContactList,
+                groupContactList: [],
                 isProcessing: false,
                 paged: 1,
                 q: ''
@@ -122,12 +126,28 @@
                     }
                 }).catch(error => {
                     swal("문제가 발생했습니다", error.message, error.result);
-                })
+                });
             },
             save() {
                 this.isProcessing = true;
-                swal('저장.').then(() => {
-                    this.$emit('close');
+                axios({
+                    method: 'POST',
+                    url: ajaxurl,
+                    headers: {'content-type': 'application/x-www-form-urlencoded'},
+                    data: qs.stringify({
+                        group: this.group,
+                        group_contact_list: this.groupContactList,
+                        action: 'mytory_contact_save_group_contact_list'
+                    })
+                }).then(res => {
+                    this.isProcessing = false;
+                    if (res.data.result === 'success') {
+                        this.$emit('close');
+                    } else {
+                        throw res.data;
+                    }
+                }).catch(error => {
+                    swal("문제가 발생했습니다", error.message, error.result);
                 });
             },
             close() {
@@ -154,7 +174,25 @@
 
             }
         },
-        props: ['group', 'contactList', 'selectedGroupContactList', 'maxNumPages'],
+        props: ['group', 'contactList', 'maxNumPages'],
+        created() {
+            this.isProcessing = true;
+            axios({
+                method: 'POST',
+                url: ajaxurl,
+                headers: {'content-type': 'application/x-www-form-urlencoded'},
+                data: qs.stringify({term_id: this.group.term_id, action: 'mytory_contact_get_group_contact_list'})
+            }).then(res => {
+                this.isProcessing = false;
+                if (res.data.result === 'success') {
+                    this.groupContactList = res.data.contact_list;
+                } else {
+                    throw res.data;
+                }
+            }).catch(error => {
+                swal("문제가 발생했습니다", error.message, error.result);
+            });
+        }
     }
 </script>
 

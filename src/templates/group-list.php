@@ -37,8 +37,7 @@
                    @save="saveGroupContacts"
                    :group="selectedGroup"
                    :contact-list="contactList"
-                   :max-num-pages="maxNumPages"
-                   :selected-group-contact-list="selectedGroupContactList"></group-manager>
+                   :max-num-pages="maxNumPages"></group-manager>
 </div>
 
 <script>
