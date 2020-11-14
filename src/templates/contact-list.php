@@ -57,20 +57,29 @@
                 <col>
                 <col>
                 <col style="width: 70px;">
+                <col style="width: 70px;">
             </colgroup>
             <thead>
             <tr>
                 <th>이름</th>
                 <th>연락처</th>
                 <th></th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="contact in contactList" v-cloak>
-                <td>{{ contact.name }}</td>
+                <td>
+                    <button class="button-link" @click="selectedContact = contact; showContactManager = true;">
+                        {{ contact.name }}
+                    </button>
+                </td>
                 <td>{{ contact.phone }}</td>
                 <td>
-                    <button class="button  button-small" @click="remove(contact.ID)">삭제</button>
+                    <button class="button-link" @click="selectedContact = contact; showContactManager = true;">수정</button>
+                </td>
+                <td>
+                    <button class="button-link" style="color: #dc3232;" @click="remove(contact.ID)">삭제</button>
                 </td>
             </tr>
             </tbody>
@@ -95,6 +104,10 @@
 			<?php } ?>
         </div>
 	<?php } ?>
+
+    <contact-manager v-if="showContactManager"
+                     @close="showContactManager = false"
+                     :contact="selectedContact"></contact-manager>
 </div>
 
 <script>

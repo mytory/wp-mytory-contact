@@ -34,7 +34,6 @@
 
     <group-manager v-if="showGroupManager"
                    @close="showGroupManager = false"
-                   @save="saveGroupContacts"
                    :group="selectedGroup"
                    :contact-list="contactList"
                    :max-num-pages="maxNumPages"></group-manager>

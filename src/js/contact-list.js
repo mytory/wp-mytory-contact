@@ -3,10 +3,14 @@ import axios from 'axios';
 import qs from 'qs';
 import swal from 'sweetalert';
 
+Vue.component('contact-manager', require('./contact-manager').default);
+
 new Vue({
     el: '.js-contact-list',
     data: {
-        contactList: mytoryContact.contactList
+        contactList: mytoryContact.contactList,
+        showContactManager: false,
+        selectedContact: null
     },
     methods: {
         remove(id) {
