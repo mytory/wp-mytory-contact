@@ -539,7 +539,7 @@ class MytoryContact {
 		die();
 	}
 
-	public function getGroupContactList( $term_id = null ) {
+	public function getGroupContactList( $term_id = null, $return = false ) {
 		$term_id  = $term_id ?: (int) $_POST['term_id'];
 		$wp_query = new WP_Query( [
 			'post_type'      => 'mytory_contact',
@@ -553,11 +553,17 @@ class MytoryContact {
 				)
 			)
 		] );
-		echo json_encode( [
-			'result'       => 'success',
-			'contact_list' => $this->wpQueryToContactList( $wp_query ),
-		] );
-		die();
+
+		if ( ! $return ) {
+			echo json_encode( [
+				'result'       => 'success',
+				'contact_list' => $this->wpQueryToContactList( $wp_query ),
+			] );
+			die();
+		} else {
+			return $this->wpQueryToContactList( $wp_query );
+		}
+
 	}
 
 	public function saveGroupContactList() {
