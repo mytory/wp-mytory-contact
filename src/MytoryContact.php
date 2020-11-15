@@ -8,7 +8,7 @@ use WP_Query;
 
 class MytoryContact {
 
-	private $has_group = false;
+	public $has_group = false;
 
 	public function __construct( $args = [] ) {
 
@@ -539,7 +539,8 @@ class MytoryContact {
 		die();
 	}
 
-	public function getGroupContactList() {
+	public function getGroupContactList( $term_id = null ) {
+		$term_id  = $term_id ?: (int) $_POST['term_id'];
 		$wp_query = new WP_Query( [
 			'post_type'      => 'mytory_contact',
 			'post_status'    => 'any',
@@ -548,7 +549,7 @@ class MytoryContact {
 				array(
 					'taxonomy' => 'mytory_contact_group',
 					'field'    => 'term_id',
-					'terms'    => (int) $_POST['term_id'],
+					'terms'    => $term_id,
 				)
 			)
 		] );
